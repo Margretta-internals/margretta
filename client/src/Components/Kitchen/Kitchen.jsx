@@ -14,19 +14,22 @@ const Kitchen = () => {
         reject(`Sorry there is an issue on our end ${err}`);
       }
     });
-    console.log(response);
+    response.then((res) => {
+      setListInKitchen(res?.data);
+    });
   }, []);
+
+  console.log("listInKitchen :", listInKitchen);
 
   return (
     <>
-      <ol key={el.id}>
-        {listInKitchen.map((el, i) => {
-          if (i === 0) {
-            <li>current item : ${el.id}</li>;
-          } else {
-            <li>in queue item : ${el.id}</li>;
-          }
-        })}
+      <ol>
+        {listInKitchen.length > 0 &&
+          listInKitchen.map((el, i) => {
+            if (i === 0)
+              return <li key={el._id}>current order : {el.orderId}</li>;
+            return <li key={el._id}>in queue item : {el.orderId}</li>;
+          })}
       </ol>
     </>
   );

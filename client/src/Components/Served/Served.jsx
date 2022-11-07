@@ -18,7 +18,7 @@ const Served = () => {
 
   return (
     <>
-      <ol key={el.id}>
+      <ol>
         {listInServed.map((el, i) => {
           if (i === 0) {
             <li>current item : ${el.id}</li>;

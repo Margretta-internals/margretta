@@ -9,9 +9,22 @@ const Home = () => {
     id: 0,
   });
 
+  const deleteDetails = () => {
+    const response = new Promise((resolve, reject) => {
+      try {
+        console.log("trying to resolve");
+        resolve(axios.post("http://localhost:5000/stop"));
+      } catch (err) {
+        reject(`Sorry there is an issue on our end ${err}`);
+      }
+    });
+    console.log(response);
+  };
+
   const handleStopSimulation = () => {
     setstartSimulation(false);
     setnumberOfCustomers(10);
+    deleteDetails();
   };
 
   useEffect(() => {
@@ -35,7 +48,7 @@ const Home = () => {
         console.log("trying to resolve");
         resolve(
           axios.post("http://localhost:5000/create-order", {
-            id: customer.id,
+            orderId: customer.id,
           })
         );
       } catch (err) {

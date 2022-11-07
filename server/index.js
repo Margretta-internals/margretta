@@ -20,8 +20,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
+
 app.use(express.json());
+app.use(cors());
 
 const morgan = require("morgan");
 app.use(morgan("tiny"));
@@ -37,14 +40,16 @@ const orderSchema = mongoose.Schema(
       unique: true,
     },
     kitchen: {
-      type: Date,
-      default: Date.now() + 4 * 60 * 1000,
+      type: Number,
     },
     served: {
-      type: Date,
-      default: Date.now() + 6 * 60 * 1000,
+      type: Number,
     },
-    status: {
+    kitchenStatus: {
+      type: Boolean,
+      default: false,
+    },
+    servedStatus: {
       type: Boolean,
       default: false,
     },
@@ -60,10 +65,14 @@ app.get("/", (req, res) => {
 
 app.post("/create-order", async (req, res) => {
   console.log(req.body);
+  const currentTimeStamp = Date.now();
+  console.log(currentTimeStamp);
   const { orderId } = req.body;
   try {
     const product = new Order({
       orderId: orderId,
+      kitchen: currentTimeStamp + 4 * 60 * 1000,
+      served: currentTimeStamp + 6 * 60 * 1000,
     });
     const savedProduct = await product.save();
     return res.json({
@@ -81,11 +90,14 @@ app.get("/kitchen", async (req, res) => {
   // what should i do? i should check in every order
   // check their currentTimeStamp && what is time in the kitchen field
   // if they have greater value && then drop them from the table
+  const currentTimeStamp = Date.now();
+  console.log(currentTimeStamp);
   try {
-    const orders = await Order.updateMany(
-      { kitchen: Date.now() },
-      { $set: { status: true } }
-    );
+    // const orders = await Order.updateMany(
+    //   { kitchen: Date.now() },
+    //   { $set: { status: true } }
+    // );
+    const orders = await Order.find();
     return res.json(orders);
   } catch (error) {
     return res.json({
@@ -123,6 +135,8 @@ app.use((req, res, next) => {
   res.status(404);
   next(error);
 });
+
+// Connecting to MongoDB
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
