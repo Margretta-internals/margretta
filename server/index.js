@@ -23,6 +23,10 @@ const orderSchema = mongoose.Schema(
     served: {
       type: Date,
       default: Date.now() + 6 * 60 * 1000
+    },
+    status: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }
@@ -58,7 +62,10 @@ app.get('/kitchen', async (req, res) => {
   // check their currentTimeStamp && what is time in the kitchen field
   // if they have greater value && then drop them from the table
   try {
-    const orders = await Order.find()
+    const orders = await Order.updateMany(
+      { kitchen: Date.now() },
+      { $set: { status: true } }
+    )
     return res.json(orders)
   } catch (error) {
     return res.json({
@@ -68,24 +75,25 @@ app.get('/kitchen', async (req, res) => {
 })
 
 app.get('/served', async (req, res) => {
-  // less or equal to current time i will pass you
-})
-
-app.post('/stop', async (req, res) => {
-  const { orderId } = req.body
   try {
-    const order = await Order.findOneAndUpdate(
-      { orderId: orderId },
-      { status: true }
+    const orders = await Order.updateMany(
+      { kitchen: Date.now() },
+      { $set: { status: true } }
     )
-    return res.json({
-      message: 'Successfully updated',
-      order: order
-    })
+    return res.json(orders)
   } catch (error) {
     return res.json({
       message: error.message
     })
+  }
+})
+
+app.post('/stop', async (req, res) => {
+  try {
+    const deletedOrder = await Order.deleteMany()
+    res.json(deletedOrder)
+  } catch (error) {
+    res.json(error.message)
   }
 })
 
